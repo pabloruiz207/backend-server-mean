@@ -9,13 +9,19 @@ var ResponseBuilder = require('../models/responseBuilder');
 // Obtener todos los usuarios
 // ===================================
 app.get('/', (req, res) => {
+    var desde = req.query.desde || 0;
+    desde = Number(desde);
     Usuario.find({}, 'nombre email img role')
+        .skip(desde)
+        .limit(5)
         .exec(
             (err, resultado) => {
                 if (err) {
                     return ResponseBuilder.errorResponse(res, 500, 'Error cargando usuarios', err);
                 }
-                return ResponseBuilder.baseResponse(res, 200, true, resultado);
+                Usuario.count({}, (err, conteo) => {
+                    return ResponseBuilder.baseResponseGet(res, 200, true, resultado, conteo);
+                });
             });
 });
 
